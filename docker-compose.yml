@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  parsel:
+    build: .
+    restart: always
+    volumes:
+      - ./parsed:/parsed
+    entrypoint: python3 parsel.py

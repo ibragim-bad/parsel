@@ -1,0 +1,5 @@
+selenium==3.141.0
+proxybroker
+tqdm
+joblib
+requests

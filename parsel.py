@@ -15,7 +15,7 @@ WEBDRIVER_PATH = 'webdrivers/chromedriver'
 FIREFOX = 'webdrivers/geckodriver'
 OUTFILE = 'parsed/paras.json'
 URL = 'https://otvet.mail.ru/'
-PROXY_NUM = 10
+PROXY_NUM = 30
 JOBS = 4
 PROXY = ''
 
@@ -39,7 +39,8 @@ class Parser:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.update_ua()
-        self.current_proxy = self.get_vaild_proxy()
+        self.current_proxy = ''
+        self.valid_proxys = self.get_vaild_proxy_list()
 
     def update_ua(self):
         self.cur_ua = random.choice(user_agent_list)
@@ -81,28 +82,29 @@ class Parser:
     #
     #     return driver
 
-    def get_vaild_proxy(self):
+    def get_vaild_proxy_list(self):
 
         proxy = self.getProxies(PROXY_NUM)
-        i = 0
-        pr = ''
-        while i < len(proxy):
-            pr = proxy[i]
-            self.logger.info(f'check {i} proxy: {pr}')
-            driver = self.get_firefox(pr)
-            driver.get("https://otvet.mail.ru/")
-            sou = driver.page_source
-            i += 1
-            if len(sou) > 50:
-                break
-            pr = ''
-        if pr == '':
-            raise TimeoutError('Not find proxy!')
-        return pr
+        # valid_proxys = []
+        # i = 0
+        # pr = ''
+        # while i < len(proxy):
+        #     pr = proxy[i]
+        #     self.logger.debug(f'check {i} proxy: {pr}')
+        #     driver = self.get_firefox(pr)
+        #     driver.get(URL)
+        #     page_text = driver.page_source
+        #     i += 1
+        #     if len(page_text) > 50:
+        #         valid_proxys.append(pr)
+        #         # break
+        # if pr == '':
+        #     raise TimeoutError('Not find proxy!')
+        return proxy
 
     def update_proxy(self):
-        self.current_proxy = self.get_vaild_proxy()
-        self.logger.info(f"proxy updated to {self.current_proxy}")
+        self.current_proxy = self.valid_proxys.pop()
+        self.logger.info(f"proxy updated {self.current_proxy}")
 
     def getProxies(self, n):
         async def show(proxies):
@@ -152,7 +154,6 @@ class Parser:
             находишь нужный xpath
             '''
             xpath = f'//*[@id="ColumnCenter"]/div/div/div[3]/div/div[{i}]/a[2]'
-       #     element = driver.find_element_by_xpath(xpath)
 
             driver.wait = WebDriverWait(driver, timeout)
 
